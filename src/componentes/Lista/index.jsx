@@ -1,32 +1,27 @@
-import { useState, useEffect } from 'react' 
-import Filtro from '../Filtro';
-import { useNavigate } from "react-router-dom";
-import './style.css'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Filtro from '../Filtro'; // Si quieres filtros por grupo
+import './style.css';
 
 function Lista() {
-  
   const [data, setData] = useState([]);
   const [tipoSeleccionado, setTipoSeleccionado] = useState('All');
   const [busqueda, setBusqueda] = useState('');
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const obtenerDatos = async () => {
-      if (tipoSeleccionado === 'All') {
-        const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=1025`);
+      try {
+        const res = await fetch('https://emoji-api.com/emojis?access_key=7df704bf63a705186fc03df84deb8f82c4c90aeb');
         const json = await res.json();
-        setData(json.results);
-        console.log(data)
-      } else {
-        const res = await fetch(`https://pokeapi.co/api/v2/type/${tipoSeleccionado}`);
-        const json = await res.json();
-        const listaFiltrada = json.pokemon.map(p => p.pokemon);
-        setData(listaFiltrada);
+        setData(json);
+      } catch (error) {
+        console.error('Error al obtener emojis:', error);
       }
     };
 
     obtenerDatos();
-  }, [tipoSeleccionado]);
+  }, []);
 
   const handleTipoChange = (tipo) => {
     setTipoSeleccionado(tipo);
@@ -34,47 +29,43 @@ function Lista() {
 
   let resultados = data;
 
-
-  if (busqueda.length >= 3 && isNaN(busqueda)) {
-    resultados = data.filter(pokemon =>
-      pokemon.name.toLowerCase().includes(busqueda.toLowerCase())
-    );
-  }
-  console.log(data)
-
-  if (!isNaN(busqueda)) {
-    resultados = data.filter(pokemon =>
-      pokemon.url.includes('/' + busqueda)
+  if (tipoSeleccionado !== 'All') {
+    resultados = resultados.filter(emoji => 
+      emoji.group && emoji.group.toLowerCase().includes(tipoSeleccionado.toLowerCase())
     );
   }
 
+  if (busqueda.length >= 3) {
+    resultados = resultados.filter(emoji =>
+      emoji.unicodeName && emoji.unicodeName.toLowerCase().includes(busqueda.toLowerCase())
+    );
+  }
 
   return (
     <>
-    <input
+      <input
         type="text"
-        placeholder="Buscar Pokémon"
+        placeholder="Buscar Emoji"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
         className="c-buscador"
       />
-    <Filtro onTipoChange={handleTipoChange} />
-      <section className='c-lista'>
-        {resultados.map((pokemon, index) => (
-          <div className='c-lista-pokemon'
+      <Filtro onTipoChange={handleTipoChange} />
 
-          key={index}>
-            <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.url.split("/")[6]}.png`} 
-                  alt={`Pokémon ${pokemon.name}`} width='auto' height='200' loading='lazy'
-                />
-            <p>{pokemon.name}</p>
+      <section className="c-lista">
+        {resultados.map((emoji, index) => (
+          <div
+            key={emoji.slug || index}
+            className="c-lista-emoji"
+            onClick={() => navigate(`/emoji/${emoji.slug}`)}
+          >
+            <p className="emoji-character">{emoji.character}</p>
+            <p className="emoji-name">{emoji.unicodeName}</p>
           </div>
         ))}
       </section>
-      </>
-       )
-   }
+    </>
+  );
+}
 
-
-  
 export default Lista;

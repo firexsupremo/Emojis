@@ -1,20 +1,29 @@
-function Filtro({ onTipoChange }) {
-    const tipos = [
-      "All",
-      "normal", "fighting", "flying", "poison", "ground", "rock",
-      "bug", "ghost", "steel", "fire", "water", "grass", "electric",
-      "psychic", "ice", "dragon", "dark", "fairy", "stellar", "shadow", "unknown"
-    ];
-  
-    return (
-      <div className="c-filtro">
-        {tipos.map((unTipo, index) => (
-          <button className='' key={index} onClick={() => onTipoChange(unTipo)}>
-            {unTipo}
-          </button>
-        ))}
-      </div>
-    );
-  }
-  
-  export default Filtro;
+
+
+function Filtro({ onTipoChange, tipoSeleccionado }) {
+  const tipos = [
+    "All",
+    "smileys",
+    "animals",
+    "foods",
+    "objects",
+    "symbols",
+    "flags"
+  ];
+
+  return (
+    <div className="c-filtro">
+      {tipos.map((tipo) => (
+        <button
+          key={tipo}
+          onClick={() => onTipoChange(tipo)}
+          className={`c-filtro-boton ${tipoSeleccionado === tipo ? 'activo' : ''}`}
+        >
+          {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default Filtro;
